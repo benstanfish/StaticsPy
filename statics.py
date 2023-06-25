@@ -9,12 +9,16 @@ __maintainer__ = "Ben Fisher"
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import uuid
 
 from math import sqrt, copysign
 from tkinter.filedialog import askopenfilename
 
 class Beam:
     def __init__(self, span_length):
+        self.id = str(uuid.uuid4())
+        self.name = "This beam has not been named yet."
+        self.boundaries = np.array([0,0])     # -1 is cantilevered, 0 is pinned, 1 is fixed
         self.span_length = span_length
         self.default_stations = span_length * np.copy(stations)
         self.added_stations = np.array([])
@@ -61,19 +65,21 @@ class Beam:
             m = globals()[beam.load_types[i]]
             func = getattr(m,'Create_Load_Vectors')
             func(self, self.load_params[i])
-            
-    def Combine_Vectors(self):
+        
+    def Combine_Loads(self):
         self.Total_V = sum(self.V)
         self.Total_M = sum(self.M)
+
 
 class Simple_Point:
     """
         Static class that provides functions relating to a single concentrated load at a point x = a, measured from the left beam support.
     """
     def Register_Load(beam: Beam, location, magnitude):
-        beam.Add_Stations([location])
-        beam.Append_Load_Type(Simple_Point)
-        beam.Append_Load_Params([location, magnitude])
+        if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
+            beam.Add_Stations([location])
+            beam.Append_Load_Type(Simple_Point)
+            beam.Append_Load_Params([location, magnitude])
 
     def Create_Load_Vectors(beam: Beam, args):
         a = args[0]
