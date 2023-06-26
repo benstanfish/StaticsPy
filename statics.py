@@ -66,7 +66,7 @@ class Beam:
         self.V.clear()
         self.M.clear()
         for i in range(0,len(self.load_types)):
-            m = globals()[beam.load_types[i]]
+            m = globals()[self.load_types[i]]
             func = getattr(m,'Create_Load_Vectors')
             func(self, self.load_params[i])
         
