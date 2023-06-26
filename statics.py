@@ -12,7 +12,7 @@ import pandas as pd
 import uuid
 
 from math import sqrt, copysign
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 
 default_station_count = 101
 stations = np.linspace(0.0,1.0,default_station_count)
@@ -100,6 +100,8 @@ class Beam:
         plt.plot(x,y,color="dodgerblue",linewidth=2)
         plt.savefig("{}-moment.png".format(self.name),dpi=300,pad_inches=0.1)
 
+
+
 class Simple_Point:
     """
         Static class that provides functions relating to a single concentrated load at a point x = a, measured from the left beam support.
@@ -108,17 +110,16 @@ class Simple_Point:
         if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
             beam.Add_Stations([location])
             beam.Append_Load_Type('Simple_Point')
-            beam.Append_Load_Params([location, magnitude])
+            beam.Append_Load_Params([magnitude, location])
 
     def Get_Load_Effects(beam: Beam, args):
-        a = args[0]
-        P = args[1]
+        P = args[0]
+        a = args[1]
         locs = np.copy(beam.all_stations)
         shears = np.zeros(locs.size)
         moments = np.zeros(locs.size)
         length = locs[np.argmax(locs)]
         b = length - a
-        length
         shears.fill(P/length)
         for i in range(0,np.argmax(locs) + 1):
             if locs[i] <= a:
@@ -131,5 +132,45 @@ class Simple_Point:
                 moments[i] = P * b * locs[i] / length
             else:
                 moments[i] = P * a * (length - locs[i]) / length
+        beam.Append_Shears(shears)
+        beam.Append_Moments(moments)
+        
+        
+        
+class Simple_UDL:
+    """
+        Static class that provides functions relating to a uniform distribued load from x = a to x = a + b distance from the left support.
+    """
+    def Add_Load(beam: Beam, a, b, magnitude):
+        if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
+            beam.Add_Stations([a,b])
+            beam.Append_Load_Type('Simple_UDL')
+            beam.Append_Load_Params([magnitude, a, b])
+
+    def Get_Load_Effects(beam: Beam, args):
+        w = args[0]
+        a = args[1]
+        b = args[2]
+        locs = np.copy(beam.all_stations)
+        shears = np.zeros(locs.size)
+        moments = np.zeros(locs.size)
+        length = locs[np.argmax(locs)]
+        c = length - a - b
+        R_left = w * b / 2 / length * (2 * c + b)
+        R_right = w b / 2 / length * (2 * a + b)
+        for i in range(0,np.argmax(locs) + 1):
+            if locs[i] <= a:
+                shears[i] = R_left
+            elif locs[i] >= a + b:
+                shears[i] = -1 * R_right
+            else:
+                shears[i] = R_left - w * (w - a)
+        for i in range(0,np.argmax(locs) + 1):
+            if locs[i] <= a:
+                moments[i] = R_left * locs[i]
+            elif locs[i] >= a + b:
+                moments[i] = R_right * (length - locs[i])
+            else:
+                moments[i] = R_left * locs[i] - w / 2 * (locs[i]-a) ** 2
         beam.Append_Shears(shears)
         beam.Append_Moments(moments)
