@@ -10,14 +10,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import uuid
+import os
 from enum import IntEnum
 
 from math import sqrt, copysign
-from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter.filedialog import askopenfilename, asksaveasfile
 
 default_station_count = 101
 stations = np.linspace(0.0,1.0,default_station_count)
-stations
+save_folder = os.path.expanduser('~\Documents\Statics')
+if not os.path.exists(save_folder):
+    os.makedirs(save_folder)
+# create_folder = os.mkdir(os.path.join(os.path.expanduser('~'),'Documents','Statics'))
+# save_folder = os.path.expanduser('~\Documents\Statics')
 
 class supportType(IntEnum):
     """Enumeration that represents the boundary condition.
@@ -152,7 +157,8 @@ class Beam:
                     myColor = "skyblue"
                 plt.fill_between(x,zeros,self.V[i],color=myColor,alpha=0.25)
         plt.plot(x,y,color="dodgerblue",linewidth=2)
-        plt.savefig("{}-shear.png".format(self.name),dpi=300,pad_inches=0.1)
+        imgPath = "{}\\{}-shear.png".format(save_folder, self.name)
+        plt.savefig(imgPath,dpi=300,pad_inches=0.1)
 
     def Show_Moment(self, show_each = True):
         """Returns a matplotlib plot of the moment diagram.
@@ -175,7 +181,8 @@ class Beam:
                     myColor = "skyblue"
                 plt.fill_between(x,zeros,self.M[i],color=myColor,alpha=0.25)
         plt.plot(x,y,color="dodgerblue",linewidth=2)
-        plt.savefig("{}-moment.png".format(self.name),dpi=300,pad_inches=0.1)
+        imgPath = "{}\\{}-moment.png".format(save_folder, self.name)
+        plt.savefig(imgPath,dpi=300,pad_inches=0.1)
 
 
 class Simple_Point:
