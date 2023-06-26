@@ -73,6 +73,30 @@ class Beam:
     def Combine_Loads(self):
         self.Total_V = sum(self.V)
         self.Total_M = sum(self.M)
+        
+    def Show_V_Plot(self):
+        x = self.all_stations
+        y = self.Total_V
+        zeros = np.zeros(self.all_stations.size)
+        fig, ax = plt.subplots()
+        ax.set_xlabel("Distance along Span")
+        ax.set_ylabel("Shear")
+        plt.plot(x,np.zeros(x.size),color="lightgray")
+        for i in range(0,len(self.load_types)):
+            plt.fill_between(x,zeros,self.V[i],color="skyblue",alpha=0.25)
+        plt.plot(x,y,color="dodgerblue")
+
+    def Show_M_Plot(self):
+        x = self.all_stations
+        y = self.Total_M
+        zeros = np.zeros(self.all_stations.size)
+        fig, ax = plt.subplots()
+        ax.set_xlabel("Distance along Span")
+        ax.set_ylabel("Moment")
+        plt.plot(x,np.zeros(x.size),color="lightgray")
+        for i in range(0,len(self.load_types)):
+            plt.fill_between(x,zeros,self.M[i],color="skyblue",alpha=0.25)
+        plt.plot(x,y,color="dodgerblue")
 
 
 class Simple_Point:
@@ -82,7 +106,7 @@ class Simple_Point:
     def Register_Load(beam: Beam, location, magnitude):
         if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
             beam.Add_Stations([location])
-            beam.Append_Load_Type(Simple_Point)
+            beam.Append_Load_Type('Simple_Point')
             beam.Append_Load_Params([location, magnitude])
 
     def Create_Load_Vectors(beam: Beam, args):
