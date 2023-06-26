@@ -84,7 +84,7 @@ class Beam:
         plt.plot(x,np.zeros(x.size),color="lightgray")
         for i in range(0,len(self.load_types)):
             plt.fill_between(x,zeros,self.V[i],color="skyblue",alpha=0.25)
-        plt.plot(x,y,color="dodgerblue")
+        plt.plot(x,y,color="dodgerblue",linewidth=2)
 
     def Show_M_Plot(self):
         x = self.all_stations
@@ -96,7 +96,7 @@ class Beam:
         plt.plot(x,np.zeros(x.size),color="lightgray")
         for i in range(0,len(self.load_types)):
             plt.fill_between(x,zeros,self.M[i],color="skyblue",alpha=0.25)
-        plt.plot(x,y,color="dodgerblue")
+        plt.plot(x,y,color="dodgerblue",linewidth=2)
 
 
 class Simple_Point:
