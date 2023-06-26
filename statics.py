@@ -141,7 +141,7 @@ class Simple_UDL:
     """
         Static class that provides functions relating to a uniform distribued load from x = a to x = a + b distance from the left support.
     """
-    def Add_Load(beam: Beam, magnitude, b, a=0.0):
+    def Add_Load(beam: Beam, magnitude, a, b):
         if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
             beam.Add_Stations([a,b])
             beam.Append_Load_Type('Simple_UDL')
@@ -151,7 +151,6 @@ class Simple_UDL:
         w = args[0]
         a = args[1]
         b = args[2]
-        c = args[3]
         locs = np.copy(beam.all_stations)
         shears = np.zeros(locs.size)
         moments = np.zeros(locs.size)
