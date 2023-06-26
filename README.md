@@ -25,3 +25,6 @@ Simple_Point(beam, P, a)
 Follow the `Beam` object argument with the load magnitude `P` and the distance `a` from the left support.
 
 Positive `P` acts downward.
+
+## Example Outputs
+`Beam.Show_All()` writes .png files to the ~/Documents/Statics folder. Examples are:
