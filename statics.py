@@ -65,10 +65,10 @@ class Beam:
     def Build_Loads(self):
         self.V.clear()
         self.M.clear()
-        for i in range(0,len(self.load_types)):
-            m = globals()[self.load_types[i]]
+        for j in range(0,len(self.load_types)):
+            m = globals()[self.load_types[j]]
             func = getattr(m,'Get_Load_Effects')
-            func(self, self.load_params[i])
+            func(self, self.load_params[j])
         
     def Combine_Loads(self):
         self.Total_V = sum(self.V)
@@ -106,15 +106,15 @@ class Simple_Point:
     """
         Static class that provides functions relating to a single concentrated load at a point x = a, measured from the left beam support.
     """
-    def Add_Load(beam: Beam, location, magnitude):
+    def Add_Load(beam: Beam, magnitude, location):
         if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
             beam.Add_Stations([location])
             beam.Append_Load_Type('Simple_Point')
             beam.Append_Load_Params([magnitude, location])
 
     def Get_Load_Effects(beam: Beam, args):
-        P = args[0]
-        a = args[1]
+        a = args[0]
+        P = args[1]
         locs = np.copy(beam.all_stations)
         shears = np.zeros(locs.size)
         moments = np.zeros(locs.size)
@@ -141,7 +141,7 @@ class Simple_UDL:
     """
         Static class that provides functions relating to a uniform distribued load from x = a to x = a + b distance from the left support.
     """
-    def Add_Load(beam: Beam, a, b, magnitude):
+    def Add_Load(beam: Beam, magnitude, a = 0, b):
         if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
             beam.Add_Stations([a,b])
             beam.Append_Load_Type('Simple_UDL')
@@ -157,7 +157,7 @@ class Simple_UDL:
         length = locs[np.argmax(locs)]
         c = length - a - b
         R_left = w * b / 2 / length * (2 * c + b)
-        R_right = w b / 2 / length * (2 * a + b)
+        R_right = w * b / 2 / length * (2 * a + b)
         for i in range(0,np.argmax(locs) + 1):
             if locs[i] <= a:
                 shears[i] = R_left
