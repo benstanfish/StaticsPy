@@ -27,4 +27,6 @@ Follow the `Beam` object argument with the load magnitude `P` and the distance `
 Positive `P` acts downward.
 
 ## Example Outputs
-`Beam.Show_All()` writes .png files to the ~/Documents/Statics folder. Examples are:
+`Beam.Show_All()` writes .png files to the ~/Documents/Statics folder. Example shear and moment output images are below. Note the combination load effect is a bold blue line, while load effects from point loads are shown as pink, and distributed loads as lightblue.
+![default_beam_name-shear](https://github.com/benstanfish/StaticsPy/assets/34006582/4eb75649-dfd3-412c-98c5-b76d7f0c706a)
+![default_beam_name-moment](https://github.com/benstanfish/StaticsPy/assets/34006582/f9ff2f1c-db0b-4f49-b74e-d1faf85ad5f1)
