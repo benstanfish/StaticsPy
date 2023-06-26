@@ -115,8 +115,8 @@ class Beam:
     def Get_Loads(self):
         """Function that runs the Build_Load() and Combine_Load() methods in order. This is the preferred method for UIs.
         """
-        self.Build_Loads(self)
-        self.Combine_Loads(self)
+        self.Build_Loads()
+        self.Combine_Loads()
         
     def Show_Shear(self, show_each = True):
         """Returns a matplotlib plot of the shear diagram.
@@ -165,11 +165,10 @@ class Beam:
         plt.savefig("{}-moment.png".format(self.name),dpi=300,pad_inches=0.1)
 
 
-
 class Simple_Point:
     """Load class for concentrated load on a simply supported beam.
     """
-    def Add_Load(self, beam: Beam, P, a):
+    def Add_Load(beam: Beam, P, a):
         """Adds class name to beam load_type and loading parameters to beam load_params. 
         These are used later to populate the beam's V[] and M[] lists.
 
@@ -212,10 +211,7 @@ class Simple_Point:
         beam.Append_Shears(shears)
         beam.Append_Moments(moments)
         
-        
-        
-        
-        
+                
 class Simple_UDL:
     """Load class for uniform distributed load (UDL) on a simply supported beam.
     """
@@ -242,9 +238,9 @@ class Simple_UDL:
             beam (Beam): Beam object to operate on
             load_params ([]): list of load_params stored in the beam load_params[] list. For this class, it will be [w,a,b] per Add_Load.
         """
-        w = args[0]
-        a = args[1]
-        b = args[2]
+        w = load_params[0]
+        a = load_params[1]
+        b = load_params[2]
         locs = np.copy(beam.all_stations)
         shears = np.zeros(locs.size)
         moments = np.zeros(locs.size)
