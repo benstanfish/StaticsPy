@@ -24,4 +24,4 @@ Simple_Point(beam, P, a)
 
 Follow the `Beam` object argument with the load magnitude `P` and the distance `a` from the left support.
 
-Positive `P` act downward.
+Positive `P` acts downward.
