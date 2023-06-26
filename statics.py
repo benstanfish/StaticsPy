@@ -167,25 +167,17 @@ class Simple_UDL:
         shears = np.zeros(locs.size)
         moments = np.zeros(locs.size)
         length = locs[np.argmax(locs)]
-        if a + b < length:
-            c = length - a + b
-        else:
-            c = 0
-        R_left = w * b / 2 / length * (2 * c + b)
-        R_right = w * b / 2 / length * (2 * a + b)
+        R1 = w * b / (2 * length) * (2 * (length - a - b) + b)
+        R2 = w * b / (2 * length)  * (2 * a + b)
         for i in range(0,np.argmax(locs) + 1):
             if locs[i] <= a:
-                shears[i] = R_left
-            elif (locs[i] > a) & (locs[i] < a+b):
-                shears[i] = R_left - w * (locs[i] - a)
+                shears[i] = R1
+                moments[i] = R1 * locs[i]
+            elif (locs[i]>a) & (locs[i]<a+b):
+                shears[i] = R1 - w * (locs[i]-a)
+                moments[i] = R1 * locs[i] - w/2 * (locs[i]-a)**2
             else:
-                shears[i] = -1 * R_right
-        for i in range(0,np.argmax(locs) + 1):
-            if locs[i] <= a:
-                moments[i] = R_left * locs[i]
-            elif locs[i] >= a + b:
-                moments[i] = R_right * (length - locs[i])
-            else:
-                moments[i] = R_left * locs[i] - w / 2 * (locs[i]-a) ** 2
+                shears[i] = R1 - b * w
+                moments[i] = R2 * (length - locs[i])
         beam.Append_Shears(shears)
         beam.Append_Moments(moments)
