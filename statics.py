@@ -67,7 +67,7 @@ class Beam:
         self.M.clear()
         for i in range(0,len(self.load_types)):
             m = globals()[self.load_types[i]]
-            func = getattr(m,'Create_Load_Vectors')
+            func = getattr(m,'Get_Load_Effects')
             func(self, self.load_params[i])
         
     def Combine_Loads(self):
@@ -103,13 +103,13 @@ class Simple_Point:
     """
         Static class that provides functions relating to a single concentrated load at a point x = a, measured from the left beam support.
     """
-    def Register_Load(beam: Beam, location, magnitude):
+    def Add_Load(beam: Beam, location, magnitude):
         if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
             beam.Add_Stations([location])
             beam.Append_Load_Type('Simple_Point')
             beam.Append_Load_Params([location, magnitude])
 
-    def Create_Load_Vectors(beam: Beam, args):
+    def Get_Load_Effects(beam: Beam, args):
         a = args[0]
         P = args[1]
         locs = np.copy(beam.all_stations)
