@@ -19,6 +19,8 @@ stations = np.linspace(0.0,1.0,default_station_count)
 stations
 
 class Beam:
+    """Creates a single-span beam object.
+    """
     def __init__(self, span_length):
         self.id = str(uuid.uuid4())
         self.name = "default_beam_name"
@@ -36,33 +38,67 @@ class Beam:
         self.Total_V = np.array([])
 
     def Add_Stations(self, new_stations):
+        """Adds stations to the added_stations array.
+
+        Args:
+            new_stations (float): location of the station in length units.
+        """
         for x in new_stations:
             if (x >= 0) & (x <= self.span_length) & (x not in self.added_stations):
                 self.added_stations = np.append(self.added_stations, x)
         self.Update_Stations()
         
     def Remove_Stations(self, remove_stations):
+        """Removes the station from the added_stations array.
+
+        Args:
+            remove_stations (_type_): _description_
+        """
         for x in remove_stations:
             if (x >= 0) & (x <= self.span_length) & (x in self.added_stations):
                 self.added_stations = np.setdiff1d(self.added_stations, np.array(remove_stations))
         self.Update_Stations()
     
     def Update_Stations(self):
+        """Combines the default_stations and added_stations arrays into the all_stations array.
+        """
         self.all_stations = np.union1d(self.default_stations, self.added_stations)
 
-    def Append_Load_Type(self, args):
-        self.load_types.append(args)
+    def Append_Load_Type(self, func_name):
+        """Appends func_name to the end of the load_types list.
 
-    def Append_Load_Params(self, args):
-        self.load_params.append(args)
+        Args:
+            func_name (str): Name of the load type static class.
+        """
+        self.load_types.append(func_name)
 
-    def Append_Shears(self, args):
-        self.V.append(args)
+    def Append_Load_Params(self, load_params):
+        """Appends load_params list to the end of the load_params list.
+
+        Args:
+            load_params ([]): List of parameters feed from the load class, e.g. load magnitude, a and b distances, etc.
+        """
+        self.load_params.append(load_params)
+
+    def Append_Shears(self, shears):
+        """Append shears vector to the V[] list
+
+        Args:
+            shears (float[]): Numpy array of shear values at each point in all_stations.
+        """
+        self.V.append(shears)
         
-    def Append_Moments(self, args):
-        self.M.append(args)
+    def Append_Moments(self, moments):
+        """Append moments vector to the M[] list
+
+        Args:
+            moments (float[]): Numpy array of moments values at each point in all_stations.
+        """
+        self.M.append(moments)
 
     def Build_Loads(self):
+        """Method that sends the load_params out the the func specified in load_types; the load effects are calcuated at all_stations and fed back to the beam object's V[] and M[] lists. In order to combine all the V and M vectors, use Combine_Loads()
+        """
         self.V.clear()
         self.M.clear()
         for j in range(0,len(self.load_types)):
@@ -71,10 +107,23 @@ class Beam:
             func(self, self.load_params[j])
         
     def Combine_Loads(self):
+        """Index-wise combination of individual shear and moment vectors into a Total_V and Total_M vector.
+        """
         self.Total_V = sum(self.V)
         self.Total_M = sum(self.M)
         
+    def Get_Loads(self):
+        """Function that runs the Build_Load() and Combine_Load() methods in order. This is the preferred method for UIs.
+        """
+        self.Build_Loads(self)
+        self.Combine_Loads(self)
+        
     def Show_Shear(self, show_each = True):
+        """Returns a matplotlib plot of the shear diagram.
+
+        Args:
+            show_each (bool, optional): Shows the individual shears in the V[] list if true. Defaults to True.
+        """
         x = self.all_stations
         y = self.Total_V
         zeros = np.zeros(self.all_stations.size)
@@ -93,6 +142,11 @@ class Beam:
         plt.savefig("{}-shear.png".format(self.name),dpi=300,pad_inches=0.1)
 
     def Show_Moment(self, show_each = True):
+        """Returns a matplotlib plot of the moment diagram.
+
+        Args:
+            show_each (bool, optional): Shows the individual moments in the M[] list if true. Defaults to True.
+        """
         x = self.all_stations
         y = self.Total_M
         zeros = np.zeros(self.all_stations.size)
@@ -113,18 +167,31 @@ class Beam:
 
 
 class Simple_Point:
+    """Load class for concentrated load on a simply supported beam.
     """
-        Static class that provides functions relating to a single concentrated load at a point x = a, measured from the left beam support.
-    """
-    def Add_Load(beam: Beam, magnitude, location):
-        if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
-            beam.Add_Stations([location])
-            beam.Append_Load_Type('Simple_Point')
-            beam.Append_Load_Params([magnitude, location])
+    def Add_Load(self, beam: Beam, P, a):
+        """Adds class name to beam load_type and loading parameters to beam load_params. 
+        These are used later to populate the beam's V[] and M[] lists.
 
-    def Get_Load_Effects(beam: Beam, args):
-        P = args[0]
-        a = args[1]
+        Args:
+            beam (Beam): Beam object to apply load information to
+            P (float): Magnitude of the load. Note, positive P act downwards.
+            a (float): Distance measured from the left support.
+        """
+        if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
+            beam.Add_Stations([a])
+            beam.Append_Load_Type('Simple_Point')
+            beam.Append_Load_Params([P, a])
+
+    def Get_Load_Effects(beam: Beam, load_params):
+        """Calculates the shears and moments from the load_params stored in the beam object, then sends the values back to the beam object's V[] and M[] lists.
+
+        Args:
+            beam (Beam): Beam object to operate on
+            load_params ([]): list of load_params stored in the beam load_params[] list. For this class, it will be [P,a] per Add_Load.
+        """
+        P = load_params[0]
+        a = load_params[1]
         locs = np.copy(beam.all_stations)
         shears = np.zeros(locs.size)
         moments = np.zeros(locs.size)
@@ -150,16 +217,31 @@ class Simple_Point:
         
         
 class Simple_UDL:
+    """Load class for uniform distributed load (UDL) on a simply supported beam.
     """
-        Static class that provides functions relating to a uniform distribued load from x = a to x = a + b distance from the left support.
-    """
-    def Add_Load(beam: Beam, magnitude, a, b):
+    def Add_Load(beam: Beam, w, a, b):
+        """Adds class name to beam load_type and loading parameters to beam load_params. 
+        These are used later to populate the beam's V[] and M[] lists. 
+        Note that if c = length - b - a. If a = c = 0 or b = length, UDL over entire beam. Otherwise partially loaded.
+
+        Args:
+            beam (Beam): Beam object to apply load information to
+            w (float): Intensity of the load. Note, positive w act downwards.
+            a (float): Distance of unloaded beam segment, measured from the left support.
+            b (float): Distance of the loaded segment of the beam.
+        """
         if (beam.boundaries[0] == 0) & (beam.boundaries[1] == 0):   # Prevents registering this load on a non-pin pin beam.      
             beam.Add_Stations([a,b])
             beam.Append_Load_Type('Simple_UDL')
-            beam.Append_Load_Params([magnitude, a, b])
+            beam.Append_Load_Params([w, a, b])
 
-    def Get_Load_Effects(beam: Beam, args):
+    def Get_Load_Effects(beam: Beam, load_params):
+        """Calculates the shears and moments from the load_params stored in the beam object, then sends the values back to the beam object's V[] and M[] lists.
+
+        Args:
+            beam (Beam): Beam object to operate on
+            load_params ([]): list of load_params stored in the beam load_params[] list. For this class, it will be [w,a,b] per Add_Load.
+        """
         w = args[0]
         a = args[1]
         b = args[2]
