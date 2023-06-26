@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import uuid
+from enum import IntEnum
 
 from math import sqrt, copysign
 from tkinter.filedialog import askopenfilename, asksaveasfilename
@@ -18,13 +19,25 @@ default_station_count = 101
 stations = np.linspace(0.0,1.0,default_station_count)
 stations
 
+class supportType(IntEnum):
+    """Enumeration that represents the boundary condition.
+    """
+    free = -1
+    cant = -1
+    cantilever = -1
+    pin = 0
+    pinned = 0
+    roller = 0
+    fix = 1
+    fixed = 1
+
 class Beam:
     """Creates a single-span beam object.
     """
-    def __init__(self, span_length):
+    def __init__(self, span_length, left_support: int=supportType.pin, right_support: int=supportType.pin):
         self.id = str(uuid.uuid4())
         self.name = "default_beam_name"
-        self.boundaries = np.array([0,0])     # -1 is cantilevered, 0 is pinned, 1 is fixed
+        self.boundaries = np.array([left_support,right_support])     # -1 is cantilevered, 0 is pinned, 1 is fixed
         self.span_length = span_length
         self.default_stations = span_length * np.copy(stations)
         self.added_stations = np.array([])
