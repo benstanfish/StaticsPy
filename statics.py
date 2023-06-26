@@ -74,7 +74,7 @@ class Beam:
         self.Total_V = sum(self.V)
         self.Total_M = sum(self.M)
         
-    def Show_Shear(self):
+    def Show_Shear(self, show_each = True):
         x = self.all_stations
         y = self.Total_V
         zeros = np.zeros(self.all_stations.size)
@@ -82,12 +82,17 @@ class Beam:
         ax.set_xlabel("Distance along Span")
         ax.set_ylabel("Shear")
         plt.plot(x,np.zeros(x.size),color="lightgray")
-        for i in range(0,len(self.load_types)):
-            plt.fill_between(x,zeros,self.V[i],color="skyblue",alpha=0.25)
+        if show_each == True:  
+            for i in range(0,len(self.load_types)):
+                if self.load_types[i] == "Simple_Point":
+                    myColor = "pink"
+                else:
+                    myColor = "skyblue"
+                plt.fill_between(x,zeros,self.V[i],color=myColor,alpha=0.25)
         plt.plot(x,y,color="dodgerblue",linewidth=2)
         plt.savefig("{}-shear.png".format(self.name),dpi=300,pad_inches=0.1)
 
-    def Show_Moment(self):
+    def Show_Moment(self, show_each = True):
         x = self.all_stations
         y = self.Total_M
         zeros = np.zeros(self.all_stations.size)
@@ -95,8 +100,13 @@ class Beam:
         ax.set_xlabel("Distance along Span")
         ax.set_ylabel("Moment")
         plt.plot(x,np.zeros(x.size),color="lightgray")
-        for i in range(0,len(self.load_types)):
-            plt.fill_between(x,zeros,self.M[i],color="skyblue",alpha=0.25)
+        if show_each == True:
+            for i in range(0,len(self.load_types)):
+                if self.load_types[i] == "Simple_Point":
+                    myColor = "pink"
+                else:
+                    myColor = "skyblue"
+                plt.fill_between(x,zeros,self.M[i],color=myColor,alpha=0.25)
         plt.plot(x,y,color="dodgerblue",linewidth=2)
         plt.savefig("{}-moment.png".format(self.name),dpi=300,pad_inches=0.1)
 
@@ -113,8 +123,8 @@ class Simple_Point:
             beam.Append_Load_Params([magnitude, location])
 
     def Get_Load_Effects(beam: Beam, args):
-        a = args[0]
-        P = args[1]
+        P = args[0]
+        a = args[1]
         locs = np.copy(beam.all_stations)
         shears = np.zeros(locs.size)
         moments = np.zeros(locs.size)
@@ -137,6 +147,8 @@ class Simple_Point:
         
         
         
+        
+        
 class Simple_UDL:
     """
         Static class that provides functions relating to a uniform distribued load from x = a to x = a + b distance from the left support.
@@ -155,16 +167,19 @@ class Simple_UDL:
         shears = np.zeros(locs.size)
         moments = np.zeros(locs.size)
         length = locs[np.argmax(locs)]
-        c = length - a - b
+        if a + b < length:
+            c = length - a + b
+        else:
+            c = 0
         R_left = w * b / 2 / length * (2 * c + b)
         R_right = w * b / 2 / length * (2 * a + b)
         for i in range(0,np.argmax(locs) + 1):
             if locs[i] <= a:
                 shears[i] = R_left
-            elif locs[i] >= a + b:
-                shears[i] = -1 * R_right
+            elif (locs[i] > a) & (locs[i] < a+b):
+                shears[i] = R_left - w * (locs[i] - a)
             else:
-                shears[i] = R_left - w * (w - a)
+                shears[i] = -1 * R_right
         for i in range(0,np.argmax(locs) + 1):
             if locs[i] <= a:
                 moments[i] = R_left * locs[i]
