@@ -162,6 +162,7 @@ class Beam:
         plt.plot(x,y,color="dodgerblue",linewidth=2)
         imgPath = "{}\\{}-shear.png".format(save_folder, self.name)
         plt.savefig(imgPath,dpi=300,pad_inches=0.1)
+        plt.show()
 
     def Show_Moment(self, show_each = True):
         """Returns a matplotlib plot of the moment diagram.
@@ -186,6 +187,7 @@ class Beam:
         plt.plot(x,y,color="dodgerblue",linewidth=2)
         imgPath = "{}\\{}-moment.png".format(save_folder, self.name)
         plt.savefig(imgPath,dpi=300,pad_inches=0.1)
+        plt.show()
 
     def Show_All(self, show_each = True):
         self.Show_Shear(show_each)
