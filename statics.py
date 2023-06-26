@@ -14,6 +14,10 @@ import uuid
 from math import sqrt, copysign
 from tkinter.filedialog import askopenfilename
 
+default_station_count = 101
+stations = np.linspace(0.0,1.0,default_station_count)
+stations
+
 class Beam:
     def __init__(self, span_length):
         self.id = str(uuid.uuid4())
