@@ -18,9 +18,12 @@ from tkinter.filedialog import askopenfilename, asksaveasfile
 
 default_station_count = 101
 stations = np.linspace(0.0,1.0,default_station_count)
-save_folder = os.path.expanduser('~\Documents\Statics')
-if not os.path.exists(save_folder):
-    os.makedirs(save_folder)
+docs_folder = os.path.join(os.path.expanduser('~'),'Documents')
+if not os.path.exists(os.path.join(docs_folder,'Statics')):
+    os.makedirs(os.path.join(docs_folder,'Statics'))
+    save_folder = os.path.join(docs_folder,'Statics')
+else:
+    save_folder = docs_folder
 # create_folder = os.mkdir(os.path.join(os.path.expanduser('~'),'Documents','Statics'))
 # save_folder = os.path.expanduser('~\Documents\Statics')
 
@@ -184,6 +187,9 @@ class Beam:
         imgPath = "{}\\{}-moment.png".format(save_folder, self.name)
         plt.savefig(imgPath,dpi=300,pad_inches=0.1)
 
+    def Show_All(self, show_each = True):
+        self.Show_Shear(show_each)
+        self.Show_Moment(show_each)
 
 class Simple_Point:
     """Load class for concentrated load on a simply supported beam.
