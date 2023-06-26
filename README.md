@@ -10,6 +10,7 @@ Library of functions for structural beam statics applications.
 
 ### Beam Class
 Create a new beam instance:
+
 `
 beam = Beam(length)
 `
