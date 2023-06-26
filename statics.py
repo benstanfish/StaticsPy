@@ -21,7 +21,7 @@ stations
 class Beam:
     def __init__(self, span_length):
         self.id = str(uuid.uuid4())
-        self.name = "This beam has not been named yet."
+        self.name = "default_name"
         self.boundaries = np.array([0,0])     # -1 is cantilevered, 0 is pinned, 1 is fixed
         self.span_length = span_length
         self.default_stations = span_length * np.copy(stations)
