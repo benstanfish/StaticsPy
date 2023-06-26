@@ -21,7 +21,7 @@ stations
 class Beam:
     def __init__(self, span_length):
         self.id = str(uuid.uuid4())
-        self.name = "default_name"
+        self.name = "default_beam_name"
         self.boundaries = np.array([0,0])     # -1 is cantilevered, 0 is pinned, 1 is fixed
         self.span_length = span_length
         self.default_stations = span_length * np.copy(stations)
@@ -74,7 +74,7 @@ class Beam:
         self.Total_V = sum(self.V)
         self.Total_M = sum(self.M)
         
-    def Show_V_Plot(self):
+    def Show_Shear(self):
         x = self.all_stations
         y = self.Total_V
         zeros = np.zeros(self.all_stations.size)
@@ -85,8 +85,9 @@ class Beam:
         for i in range(0,len(self.load_types)):
             plt.fill_between(x,zeros,self.V[i],color="skyblue",alpha=0.25)
         plt.plot(x,y,color="dodgerblue",linewidth=2)
+        plt.savefig("{}-shear.png".format(self.name),dpi=300,pad_inches=0.1)
 
-    def Show_M_Plot(self):
+    def Show_Moment(self):
         x = self.all_stations
         y = self.Total_M
         zeros = np.zeros(self.all_stations.size)
@@ -97,7 +98,7 @@ class Beam:
         for i in range(0,len(self.load_types)):
             plt.fill_between(x,zeros,self.M[i],color="skyblue",alpha=0.25)
         plt.plot(x,y,color="dodgerblue",linewidth=2)
-
+        plt.savefig("{}-moment.png".format(self.name),dpi=300,pad_inches=0.1)
 
 class Simple_Point:
     """
