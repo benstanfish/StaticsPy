@@ -238,8 +238,7 @@ class Simple_Point:
                 moments[i] = P * a * (length - locs[i]) / length
         beam.Append_Shears(shears)
         beam.Append_Moments(moments)
-        
-                
+                      
 class Simple_UDL:
     """Load class for uniform distributed load (UDL) on a simply supported beam.
     """
@@ -287,3 +286,6 @@ class Simple_UDL:
                 moments[i] = R2 * (length - locs[i])
         beam.Append_Shears(shears)
         beam.Append_Moments(moments)
+
+
+#test
