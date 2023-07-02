@@ -6,6 +6,7 @@ __credits__ = ["Ben Fisher"]
 __status__ = "Development"
 __maintainer__ = "Ben Fisher"
 
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -139,6 +140,34 @@ class Beam:
         self.Build_Loads()
         self.Combine_Loads()
         
+    def Show_Loads(self):
+        """Returns a matplotlib plot of the loading in the load_params list.
+        """
+        x = self.all_stations
+        y = self.Total_V
+        zeros = np.zeros(self.all_stations.size)
+        fig, ax = plt.subplots()
+        ax.set_xlabel("Distance along Span")
+        ax.set_ylabel("Loading")
+        plt.plot(x,np.zeros(x.size),color="lightgray")
+        loadArrows = list()
+        for i in range(0,len(self.load_types)):
+            mag = self.load_params[i][0]
+            start = self.load_params[i][1]
+            if self.load_types[i].split("_")[1] != "Point":
+                end = self.load_params[i][2]
+                dist_arrows = Load_Arrows.Draw(mag,start,end)
+                for x in dist_arrows:
+                    loadArrows.append(x)
+            else:
+                loadArrows.append(Load_Arrows.Draw(mag,start))
+        for i in range(0,len(loadArrows)):
+            ax.add_patch(loadArrows[i])
+        imgPath = "{}\\{}-loading.png".format(save_folder, self.name)
+        plt.savefig(imgPath,dpi=300,pad_inches=0.1)
+        plt.show()
+        
+        
     def Show_Shear(self, show_each = True):
         """Returns a matplotlib plot of the shear diagram.
 
@@ -190,6 +219,7 @@ class Beam:
         plt.show()
 
     def Show_All(self, show_each = True):
+        self.Show_Loads()
         self.Show_Shear(show_each)
         self.Show_Moment(show_each)
 
@@ -288,4 +318,22 @@ class Simple_UDL:
         beam.Append_Moments(moments)
 
 
-#test
+class Load_Arrows:
+    """Static class that creates load arrow(s) for a MatPlotLib plot.
+    """
+    def Draw(mag, start, end = 0, qty = 4):
+        if end == 0:
+            return mpatches.FancyArrowPatch((start, mag), (start, 0),mutation_scale=20,arrowstyle="->",shrinkA=0,shrinkB=0)
+        else:
+            arrows = list()
+            xs = np.linspace(start,end,qty)
+            ys = np.zeros(qty)
+            ys.fill(mag)
+            for i in range(0, qty):
+                arrows.append(mpatches.FancyArrowPatch((xs[i], ys[i]), (xs[i], 0),mutation_scale=20,arrowstyle="->",shrinkA=0,shrinkB=0))
+            xyA = (start,mag)
+            xyB = (end,mag)
+            connector = mpatches.ConnectionPatch(xyA,xyB,coordsA="data",coordsB="data",arrowstyle="-",shrinkA=0,shrinkB=0,mutation_scale=20)
+            arrows.append(connector)
+            return arrows
+            
