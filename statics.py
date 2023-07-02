@@ -25,8 +25,6 @@ if not os.path.exists(os.path.join(docs_folder,'Statics')):
     save_folder = os.path.join(docs_folder,'Statics')
 else:
     save_folder = docs_folder
-# create_folder = os.mkdir(os.path.join(os.path.expanduser('~'),'Documents','Statics'))
-# save_folder = os.path.expanduser('~\Documents\Statics')
 
 class supportType(IntEnum):
     """Enumeration that represents the boundary condition.
@@ -168,7 +166,7 @@ class Beam:
         plt.show()
         
         
-    def Show_Shear(self, show_each = True):
+    def Show_Shear(self, show_each = True, show_load_lines = True):
         """Returns a matplotlib plot of the shear diagram.
 
         Args:
@@ -188,12 +186,12 @@ class Beam:
                 else:
                     myColor = "skyblue"
                 plt.fill_between(x,zeros,self.V[i],color=myColor,alpha=0.25)
-        plt.plot(x,y,color="dodgerblue",linewidth=2)
+        plt.plot(x,y,color="indigo",linewidth=2)
         imgPath = "{}\\{}-shear.png".format(save_folder, self.name)
         plt.savefig(imgPath,dpi=300,pad_inches=0.1)
         plt.show()
 
-    def Show_Moment(self, show_each = True):
+    def Show_Moment(self, show_each = True, show_load_lines = True):
         """Returns a matplotlib plot of the moment diagram.
 
         Args:
@@ -213,7 +211,7 @@ class Beam:
                 else:
                     myColor = "skyblue"
                 plt.fill_between(x,zeros,self.M[i],color=myColor,alpha=0.25)
-        plt.plot(x,y,color="dodgerblue",linewidth=2)
+        plt.plot(x,y,color="indigo",linewidth=2)
         imgPath = "{}\\{}-moment.png".format(save_folder, self.name)
         plt.savefig(imgPath,dpi=300,pad_inches=0.1)
         plt.show()
@@ -308,12 +306,13 @@ class Simple_UDL:
             if locs[i] <= a:
                 shears[i] = R1
                 moments[i] = R1 * locs[i]
-            elif (locs[i]>a) & (locs[i]<a+b):
+            elif locs[i]>a+b:
+                shears[i] = -R2
+                moments[i] = R2 * (length - locs[i])
+            else:
+                #else (locs[i]>a) & (locs[i]<a+b):
                 shears[i] = R1 - w * (locs[i]-a)
                 moments[i] = R1 * locs[i] - w/2 * (locs[i]-a)**2
-            else:
-                shears[i] = R1 - b * w
-                moments[i] = R2 * (length - locs[i])
         beam.Append_Shears(shears)
         beam.Append_Moments(moments)
 
@@ -321,19 +320,19 @@ class Simple_UDL:
 class Load_Arrows:
     """Static class that creates load arrow(s) for a MatPlotLib plot.
     """
-    def Draw(mag, start, end = 0, qty = 4):
-        if end == 0:
-            return mpatches.FancyArrowPatch((start, mag), (start, 0),mutation_scale=20,arrowstyle="->",shrinkA=0,shrinkB=0)
+    def Draw(mag, a, b = 0, arrow_qty = 4):
+        if b == 0:
+            return mpatches.FancyArrowPatch((a, mag), (a, 0),mutation_scale=20,arrowstyle="->",shrinkA=0,shrinkB=0)
         else:
             arrows = list()
-            xs = np.linspace(start,end,qty)
-            ys = np.zeros(qty)
+            xs = np.linspace(a,a+b,arrow_qty)
+            ys = np.zeros(arrow_qty)
             ys.fill(mag)
-            for i in range(0, qty):
+            for i in range(0, arrow_qty):
                 arrows.append(mpatches.FancyArrowPatch((xs[i], ys[i]), (xs[i], 0),mutation_scale=20,arrowstyle="->",shrinkA=0,shrinkB=0))
-            xyA = (start,mag)
-            xyB = (end,mag)
+            xyA = (a,mag)
+            xyB = (a+b,mag)
             connector = mpatches.ConnectionPatch(xyA,xyB,coordsA="data",coordsB="data",arrowstyle="-",shrinkA=0,shrinkB=0,mutation_scale=20)
             arrows.append(connector)
             return arrows
-            
+           
