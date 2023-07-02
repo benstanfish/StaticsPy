@@ -1,6 +1,6 @@
 """Library of functions for structural beam statics applications."""
 __author__ = "Ben Fisher"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __license__ = "GPL"
 __credits__ = ["Ben Fisher"]
 __status__ = "Development"
@@ -137,7 +137,23 @@ class Beam:
         """
         self.Build_Loads()
         self.Combine_Loads()
-        
+    
+    def Export_To_Excel(self):
+        shear_data = np.vstack((self.all_stations,self.V, self.Total_V))
+        shear_header = self.load_types.copy()
+        shear_header.insert(0,"Location")
+        shear_header.append("Total Shear")
+        shear_dataframe = pd.DataFrame(shear_data.transpose(), columns=shear_header)
+        exportPath = "{}\\{}-shear_data.xlsx".format(save_folder, self.name)
+        with pd.ExcelWriter(exportPath) as writer: shear_dataframe.to_excel(writer)
+        moment_data = np.vstack((self.all_stations,self.M, self.Total_M))
+        moment_header = self.load_types.copy()
+        moment_header.insert(0,"Location")
+        moment_header.append("Total Moment")
+        moment_dataframe = pd.DataFrame(moment_data.transpose(), columns=moment_header)
+        exportPath = "{}\\{}-moment_data.xlsx".format(save_folder, self.name)
+        with pd.ExcelWriter(exportPath) as writer: moment_dataframe.to_excel(writer)
+   
     def Show_Loads(self):
         """Returns a matplotlib plot of the loading in the load_params list.
         """
@@ -363,3 +379,6 @@ class Load_Arrows:
             arrows.append(connector)
             return arrows
            
+def Export_Data(headers, data, export_to):
+    pd.DataFrame(data, columns=headers)
+    pd.ExcelWriter(path=export_to)
