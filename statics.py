@@ -142,8 +142,6 @@ class Beam:
         """Returns a matplotlib plot of the loading in the load_params list.
         """
         x = self.all_stations
-        y = self.Total_V
-        zeros = np.zeros(self.all_stations.size)
         fig, ax = plt.subplots()
         ax.set_xlabel("Distance along Span")
         ax.set_ylabel("Loading")
@@ -166,7 +164,7 @@ class Beam:
         plt.show()
         
         
-    def Show_Shear(self, show_each = True, show_load_lines = True):
+    def Show_Shear(self, show_each = True, show_loads = True):
         """Returns a matplotlib plot of the shear diagram.
 
         Args:
@@ -187,11 +185,27 @@ class Beam:
                     myColor = "skyblue"
                 plt.fill_between(x,zeros,self.V[i],color=myColor,alpha=0.25)
         plt.plot(x,y,color="indigo",linewidth=2)
+        plt.plot(np.array([0,0]), np.array([0,self.Total_V[0]]), color="indigo", linewidth=2)
+        plt.plot(np.array([self.all_stations.max(),self.all_stations.max()]), np.array([0,self.Total_V[self.all_stations.size-1]]), color="indigo", linewidth=2)
+        if show_loads == True:
+            loadArrows = list()
+            for i in range(0,len(self.load_types)):
+                mag = self.load_params[i][0]
+                start = self.load_params[i][1]
+                if self.load_types[i].split("_")[1] != "Point":
+                    end = self.load_params[i][2]
+                    dist_arrows = Load_Arrows.Draw(mag,start,end)
+                    for x in dist_arrows:
+                        loadArrows.append(x)
+                else:
+                    loadArrows.append(Load_Arrows.Draw(mag,start))
+            for i in range(0,len(loadArrows)):
+                ax.add_patch(loadArrows[i])
         imgPath = "{}\\{}-shear.png".format(save_folder, self.name)
         plt.savefig(imgPath,dpi=300,pad_inches=0.1)
         plt.show()
 
-    def Show_Moment(self, show_each = True, show_load_lines = True):
+    def Show_Moment(self, show_each = True, show_loads = True):
         """Returns a matplotlib plot of the moment diagram.
 
         Args:
@@ -212,6 +226,20 @@ class Beam:
                     myColor = "skyblue"
                 plt.fill_between(x,zeros,self.M[i],color=myColor,alpha=0.25)
         plt.plot(x,y,color="indigo",linewidth=2)
+        if show_loads == True:
+            loadArrows = list()
+            for i in range(0,len(self.load_types)):
+                mag = self.load_params[i][0]
+                start = self.load_params[i][1]
+                if self.load_types[i].split("_")[1] != "Point":
+                    end = self.load_params[i][2]
+                    dist_arrows = Load_Arrows.Draw(mag,start,end)
+                    for x in dist_arrows:
+                        loadArrows.append(x)
+                else:
+                    loadArrows.append(Load_Arrows.Draw(mag,start))
+            for i in range(0,len(loadArrows)):
+                ax.add_patch(loadArrows[i])
         imgPath = "{}\\{}-moment.png".format(save_folder, self.name)
         plt.savefig(imgPath,dpi=300,pad_inches=0.1)
         plt.show()
@@ -315,7 +343,6 @@ class Simple_UDL:
                 moments[i] = R1 * locs[i] - w/2 * (locs[i]-a)**2
         beam.Append_Shears(shears)
         beam.Append_Moments(moments)
-
 
 class Load_Arrows:
     """Static class that creates load arrow(s) for a MatPlotLib plot.
