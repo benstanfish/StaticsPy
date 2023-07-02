@@ -19,13 +19,13 @@ from tkinter.filedialog import askopenfilename, asksaveasfile
 
 default_station_count = 101
 stations = np.linspace(0.0,1.0,default_station_count)
+
 docs_folder = os.path.join(os.path.expanduser('~'),'Documents')
 if not os.path.exists(os.path.join(docs_folder,'Statics')):
     os.makedirs(os.path.join(docs_folder,'Statics'))
-    save_folder = os.path.join(docs_folder,'Statics')
-else:
-    save_folder = docs_folder
+save_folder = os.path.join(docs_folder,'Statics')
 
+    
 class supportType(IntEnum):
     """Enumeration that represents the boundary condition.
     """
