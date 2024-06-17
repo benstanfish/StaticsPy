@@ -1,5 +1,5 @@
 # StaticsPy
-Library of functions for structural beam statics applications.
+PROOF OF CONCEPT. Library of functions for structural beam statics applications.
 
 ## Basic Workflow
 1. Create a beam
